@@ -1,28 +1,104 @@
-/* module.exports = {
-    ...require('./controllers/user')
-};
- */
+
 
 const container = document.querySelector('.container');
 var inputValue = document.querySelector('.input');
-const add = document.querySelector('.add');
+const addButton = document.querySelector('.add');
+const url = "https://us-central1-javascript-todo-list.cloudfunctions.net/todoList/";
 
-if(window.localStorage.getItem("todos") == undefined){
-     var todos = [];
-     window.localStorage.setItem("todos", JSON.stringify(todos));
+var todos = [];
+addButton.addEventListener('click', addTodo);
+
+function addTodo() {
+
+    createTodo();
 }
 
-var todosEX = window.localStorage.getItem("todos");
-var todos = JSON.parse(todosEX);
+async function createTodo() {
 
+    const newTodo = { todo: inputValue.value};
+    console.log(newTodo);
+    if(!newTodo.todo){
+       
+        return;
+    }
+ 
+    try{
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newTodo)
+        });
+ 
+        if(response.ok){
+            const body = await response.text();
+            
+            newTodo.id = body;
+            console.log(body);
+           
+            todos.push(newTodo);
+            console.log(todos);
+           // new item(todos[0].todo);
+           container.innerHTML = "";
+           todos.forEach((todo) => {
+            new item(todo.todo, todo.id);
+        });
+        
+            
+           
+        } else{
+            throw new Error(response.statusText);
+        }
+ 
+ 
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function deleteTodo(id) {
+
+    console.log("hej"+ id);
+ 
+    try{
+        const response = await fetch(url + id ,  {
+            method: 'DELETE',
+        
+        });
+ 
+        if(response.ok){
+            const body = await response.text();
+            
+            todos = todos.filter(todo => todo.id !== id);
+           
+            
+           container.innerHTML = "";
+           todos.forEach((todo) => {
+            new item(todo.todo, todo.id);
+        });
+        
+            
+           
+        } else{
+            throw new Error(response.statusText);
+        }
+ 
+ 
+    } catch (err) {
+        throw err;
+    }
+}
 
 class item{
-	constructor(name){
-		this.createItem(name);
+	constructor(name, id){
+		this.createItem(name, id);
 	}
-    createItem(name){
+  createItem(name, id){
     	var itemBox = document.createElement('div');
         itemBox.classList.add('item');
+        itemBox.id = id;
+        
 
     	var input = document.createElement('input');
     	input.type = "text";
@@ -37,8 +113,11 @@ class item{
 
     	var remove = document.createElement('button');
     	remove.classList.add('remove');
-    	remove.innerHTML = "REMOVE";
-    	remove.addEventListener('click', () => this.remove(itemBox, name));
+        remove.innerHTML = "REMOVE";
+        remove.id = id
+        remove.addEventListener('click', () => this.remove(itemBox, name));
+        //remove.onclick(deleteTodo(this.id));
+        
 
     	container.appendChild(itemBox);
 
@@ -56,7 +135,7 @@ class item{
             input.disabled = !input.disabled;
             let indexof = todos.indexOf(name);
             todos[indexof] = input.value;
-            window.localStorage.setItem("todos", JSON.stringify(todos));
+          
         }
     }
 
@@ -64,27 +143,11 @@ class item{
         itemBox.parentNode.removeChild(itemBox);
         let index = todos.indexOf(name);
         todos.splice(index, 1);
-        window.localStorage.setItem("todos", JSON.stringify(todos));
+        
     }
 }
 
-add.addEventListener('click', check);
-window.addEventListener('keydown', (e) => {
-	if(e.which == 13){
-		check();
-	}
-})
 
-function check(){
-	if(inputValue.value != ""){
-		new item(inputValue.value);
-        todos.push(inputValue.value);
-        window.localStorage.setItem("todos", JSON.stringify(todos));
-		inputValue.value = "";
-	}
-}
-
-
-for (var v = 0 ; v < todos.length ; v++){
-    new item(todos[v]);
-}
+// for (var v = 0 ; v < todos.length ; v++){
+//     new item(todos[v]);
+// }

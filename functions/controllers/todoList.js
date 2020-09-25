@@ -38,9 +38,9 @@ todoListApp.get("/:id", async (req, res) => {
 todoListApp.post('/', async (req, res) => {
     const todoList = req.body;
 
-    await db.collection('todoLists').add(todoList);
+    const result = await db.collection('todoLists').add(todoList);
 
-    res.status(201).send();
+    res.status(201).send(result.id);
 
 });
 
