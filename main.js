@@ -78,6 +78,7 @@ async function deleteTodo(id) {
             new item(todo.todo, todo.id);
         });
         
+        
             
            
         } else{
@@ -89,6 +90,8 @@ async function deleteTodo(id) {
         throw err;
     }
 }
+
+
 
 class item{
 	constructor(name, id){
@@ -115,7 +118,7 @@ class item{
     	remove.classList.add('remove');
         remove.innerHTML = "REMOVE";
         remove.id = id
-        remove.addEventListener('click', () => this.remove(itemBox, name));
+        remove.addEventListener('click', () => this.remove(itemBox, name, id));
         //remove.onclick(deleteTodo(this.id));
         
 
@@ -135,19 +138,23 @@ class item{
             input.disabled = !input.disabled;
             let indexof = todos.indexOf(name);
             todos[indexof] = input.value;
-          
+           
         }
     }
 
-    remove(itemBox, name){
+    remove(itemBox, name, id){
+        
         itemBox.parentNode.removeChild(itemBox);
         let index = todos.indexOf(name);
         todos.splice(index, 1);
+        deleteTodo(id);
+        container.innerHTML = "";
+        todos.forEach((todo) => {
+         new item(todo.todo, todo.id);
+     });
+     
         
     }
 }
 
 
-// for (var v = 0 ; v < todos.length ; v++){
-//     new item(todos[v]);
-// }
